@@ -223,3 +223,70 @@ app.get('/ratio/:ethn?/:year?/:cip?',function(req,res){
    res.send(""+maleCount/femaCount);
 });
 //===============================================
+
+// ************ Scenario 1 *******************
+//Get the grand rank of given record.
+app.get('/gradrank/:recordID',function(req,res){
+    let rec = recordBook.getCIPRecord(parseInt(req.params.recordID));
+    console.log(recordBook);
+    res.send('Grad rank is ' + rec.grads_rank + ' for record: ' + req.params.recordID);
+});
+//******************************************************
+// ************ Scenario 2 *******************
+//Get the data for how many grads in given year
+app.get('/totalgrad/:year',function(req,res){
+    let year =req.params.year;
+    let grandCnt = 0;
+
+    // check for error in request
+    if(typeof req.params.year == 'undefined'){
+        res.sendStatus(400);
+        return;
+    }
+
+    // get the total grad count in given year
+    for(var i of recordBook.book) {
+        // only pick the music teachers
+        if ((i[1].year == year)){
+            grandCnt += i[1]['grads_total'];
+        }
+    }
+    //console.log('grandCnt: '+grandCnt);
+    res.send(""+grandCnt);
+
+});
+//************************************************
+// ************ Scenario 3 *******************
+//Get the data for how many males or females work as a music teacher(name: 'Music Teacher Education')
+app.get('/musicteachers/:gender',function(req,res){
+    let gndr =req.params.gender.toString().toUpperCase();
+    let teachCntbyGendr = 0;
+    let musicTeach = 'Music Teacher Education';
+
+    //console.log("GENDER:" + gndr);
+    // set gender
+    if(gndr === ':MALE'){
+        gndr='grads_men';
+    }else if(gndr ===':FEMALE'){
+        gndr='grads_women';
+    }
+
+    // check for error in request
+    if(typeof req.params.gender == 'undefined'){
+        res.sendStatus(400);
+        return;
+    }
+
+    // get the total gender count
+    for(var i of recordBook.book) {
+        // only pick the music teachers
+        if ((i[1].name == musicTeach)){
+            console.log('music:' + i[1][gndr]);
+            teachCntbyGendr += i[1][gndr];
+        }
+    }
+    //console.log('teachCntbyGendr: '+teachCntbyGendr);
+    res.send(""+teachCntbyGendr);
+
+});
+//******************************************************
