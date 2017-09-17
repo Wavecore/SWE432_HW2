@@ -14,7 +14,22 @@ app.listen(app.get('port'), function() {
 });
 
 app.get('/', function (req, res) {
-    res.send('Hello World Again!');
+    res.send('1)Get the grand rank of given record.\n' +
+        '\tGET:/grandrank/:recordID\n' +
+        ' \n' +
+        '2) Get the data for how many grads in given year\n' +
+        '\tGET:/totalgrad/:year\n' +
+        ' \n' +
+        '3) Get the data for how many males or females work as a music teacher(name: \'Music Teacher Education\')\n' +
+        '\tGET:/musicteachers/:female\n' +
+        '\tGET:/musicteachers/:male\n' +
+        '\n' +
+        '4) Get the ratio of male to female grads in each ethnicity (can specify the year and CIP for more specific ratios)\n' +
+        '\tGET: /ratio/:ethn?/:year?/:cip?\n' +
+        '\n' +
+        '5) Retrieve, add, update, and or delete a CIP record\n' +
+        '\tPOST: /record\n' +
+        '\tGET, DELETE,PUT: /record/:recordID\n');
 });
 
 class CIPRecords{
