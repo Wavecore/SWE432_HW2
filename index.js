@@ -228,7 +228,13 @@ app.get('/ratio/:ethn?/:year?/:cip?',function(req,res){
 //Get the grand rank of given record.
 app.get('/gradrank/:recordID',function(req,res){
     let rec = recordBook.getCIPRecord(parseInt(req.params.recordID));
-    console.log(recordBook);
+
+    // check for error in request
+    if(typeof req.params.recordID == 'undefined'){
+        res.sendStatus(400);
+        return;
+    }
+    //console.log(recordBook);
     res.send('Grad rank is ' + rec.grads_rank + ' for record: ' + req.params.recordID);
 });
 //******************************************************
@@ -251,6 +257,7 @@ app.get('/totalgrad/:year',function(req,res){
             grandCnt += i[1]['grads_total'];
         }
     }
+
     //console.log('grandCnt: '+grandCnt);
     res.send(""+grandCnt);
 
@@ -263,18 +270,18 @@ app.get('/musicteachers/:gender',function(req,res){
     let teachCntbyGendr = 0;
     let musicTeach = 'Music Teacher Education';
 
+    // check for error in request
+    if(typeof req.params.gender == 'undefined'){
+        res.sendStatus(400);
+        return;
+    }
+
     //console.log("GENDER:" + gndr);
     // set gender
     if(gndr === 'MALE'){
         gndr='grads_men';
     }else if(gndr ==='FEMALE'){
         gndr='grads_women';
-    }
-
-    // check for error in request
-    if(typeof req.params.gender == 'undefined'){
-        res.sendStatus(400);
-        return;
     }
 
     // get the total gender count
@@ -284,6 +291,11 @@ app.get('/musicteachers/:gender',function(req,res){
             console.log('music:' + i[1][gndr]);
             teachCntbyGendr += i[1][gndr];
         }
+    }
+
+    if(teachCntbyGendr==0){
+        res.sendStatus(404);
+        return;
     }
     //console.log('teachCntbyGendr: '+teachCntbyGendr);
     res.send(""+teachCntbyGendr);
