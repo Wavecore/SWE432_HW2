@@ -265,9 +265,9 @@ app.get('/musicteachers/:gender',function(req,res){
 
     //console.log("GENDER:" + gndr);
     // set gender
-    if(gndr === ':MALE'){
+    if(gndr === 'MALE'){
         gndr='grads_men';
-    }else if(gndr ===':FEMALE'){
+    }else if(gndr ==='FEMALE'){
         gndr='grads_women';
     }
 
