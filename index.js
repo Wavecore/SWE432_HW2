@@ -99,6 +99,7 @@ fetch('https://api.datausa.io/api/?show=cip&sumlevel=all')
 			idToName.set(i[idIndex],i[nameIndex]);
 		}
         let cipHeader = records['headers'];
+        cipHeader.push('name');
 		var recBook = new CIPRecordBook(cipHeader);
 		for(var i of records['data']){
 			let cipRecordInfo = new Map();
@@ -121,7 +122,7 @@ fetch('https://api.datausa.io/api/?show=cip&sumlevel=all')
 	});
 
 });
-//======================================================
+//===========Debugging Endpoints============================
 app.get('/test/:inputStuff', function (req, res) {
   res.send(req.params.inputStuff);
 });
@@ -136,12 +137,89 @@ app.get('/recordbook',function(req,res){
 	console.log(recordBook);
 	res.send(recordBook);
 });
-//=========================================================
+//=======Scenario 5=======================================
 app.get('/record/:recordID',function(req,res){
     res.send(recordBook.getCIPRecord(parseInt(req.params.recordID)));
 });
 app.post('/record/',function(req,res){
-    console.log(req.body);
-    recordBook.add(req.body);
-    res.send(req.body);
+    let input = new Map();
+    for (var i in req.body){
+        input.set(i,req.body[i]);
+    }
+    try{
+        if(input.size == recordBook.recordHeaders.length && recordBook.recordHeaders.every(function(element, index) {
+                return input.has(element); })){
+            recordBook.add(new CIPRecords(input));
+            res.sendStatus(200);
+        }
+        else
+            res.sendStatus(400);
+    }
+    catch(err){
+        console.log(err);
+        res.sendStatus(400);
+    }
 });
+app.delete('/record/:recordID',function(req,res){
+    if(recordBook.book.has(parseInt(req.params.recordID))){
+        recordBook.remove(parseInt(req.params.recordID));
+        res.sendStatus(200);
+    }
+    else
+        res.sendStatus(410);
+});
+app.put('/record/:recordID',function(req,res){
+    let input = new Map();
+    let index = parseInt(req.params.recordID);
+    for (var i in req.body){
+        input.set(i,req.body[i]);
+    }
+    try{
+        if(input.size == recordBook.recordHeaders.length && recordBook.recordHeaders.every(function(element, index) {
+                return input.has(element); }) && recordBook.book.has(index)){
+            recordBook.update(index,new CIPRecords(input));
+            res.sendStatus(200);
+        }
+        else if(recordBook.book.has(index) == false)
+            res.sendStatus(410);
+        else
+            res.sendStatus(400);
+    }
+    catch(err){
+        console.log(err);
+        res.sendStatus(400);
+    }
+});
+//=======Scenario 4=======================================
+app.get('/ratio/:ethn?/:year?/:cip?',function(req,res){
+    let ethn = req.params.ethn;
+    let ethnMale = ethn+'_men';
+    let ethnFema = ethn+'_women';
+    let maleCount = 0;
+    let femaCount = 0;
+    let year = parseInt(req.params.year);
+    if(isNaN(year) && typeof req.params.year != 'undefined' && req.params.year != 'all'){
+        res.sendStatus(400);
+        return;
+    }
+    let cip = req.params.cip;
+    if(ethn == undefined || ethn == 'all' || ethn == 'total' || ethn == 'grads'){
+        ethnMale = 'grads_men';
+        ethnFema = 'grads_women';
+    }
+    else if(recordBook.recordHeaders.indexOf(ethnMale) == -1 || recordBook.recordHeaders.indexOf(ethnFema) == -1){
+        res.sendStatus(400);
+        return;
+    }
+    //res.send(ethnMale + '    '+ethnFema);
+   for(var i of recordBook.book) {
+       if ((i[1].year == year || typeof req.params.year == 'undefined' || req.params.year == 'all') &&
+           (i[1].name == cip || typeof cip == 'undefined')){
+           maleCount += i[1][ethnMale];
+           femaCount += i[1][ethnFema];
+       }
+   }
+   //console.log('maleCount: '+maleCount + '     femaCount: '+femaCount);
+   res.send(""+maleCount/femaCount);
+});
+//===============================================
