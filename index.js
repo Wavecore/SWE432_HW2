@@ -14,7 +14,7 @@ app.listen(app.get('port'), function() {
 });
 
 app.get('/', function (req, res) {
-    res.send('Hello World!');
+    res.send('Hello World Again!');
 });
 
 class CIPRecords{
@@ -268,6 +268,7 @@ app.get('/musicteachers/:gender',function(req,res){
     if(gndr === 'MALE'){
         gndr='grads_men';
     }else if(gndr ==='FEMALE'){
+
         gndr='grads_women';
     }
 
