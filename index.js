@@ -14,8 +14,8 @@ app.listen(app.get('port'), function() {
 });
 
 app.get('/', function (req, res) {
-    res.send('1)Get the grand rank of given record.\n' +
-        '\tGET:/grandrank/:recordID\n' +
+    res.send('1)Get the grad rank of given record.\n' +
+        '\tGET:/gradrank/:recordID\n' +
         ' \n' +
         '2) Get the data for how many grads in given year\n' +
         '\tGET:/totalgrad/:year\n' +
@@ -240,7 +240,7 @@ app.get('/ratio/:ethn?/:year?/:cip?',function(req,res){
 //===============================================
 
 // ************ Scenario 1 *******************
-//Get the grand rank of given record.
+//Get the grad rank of given record.
 app.get('/gradrank/:recordID',function(req,res){
     let rec = recordBook.getCIPRecord(parseInt(req.params.recordID));
 
