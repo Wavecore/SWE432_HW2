@@ -99,15 +99,15 @@ var getData = ()=>{
     Promise.all([fetch('https://api.datausa.io/api/?show=cip&sumlevel=all'),fetch('https://api.datausa.io/attrs/cip/')])
         .then((res)=>{
             console.log('Obtaining Fetches');
-            if(res[0].statusCode==404){t
+            if(res[0].status==404){t
                 throw new Error("ERROR 404 URL Not found: https://api.datausa.io/api/?show=cip&sumlevel=all");
             }
-            if(res[1].statusCode==404){t
+            if(res[1].status==404){t
                 throw new Error("ERROR 404 URL Not found: https://api.datausa.io/attrs/cip/");
             }
 
 
-            while(res[0].statusCode==503 || res[0].statusCode==408){
+            while(res[0].status==503 || res[0].status==408){
                 fetch('https://api.datausa.io/api/?show=cip&sumlevel=all')
                     .then((newRes)=>{
                             res[0]=newRes;
@@ -115,7 +115,7 @@ var getData = ()=>{
                     );
             }
 
-            while(res[1].statusCode==503 || res[1].statusCode==408){
+            while(res[1].status==503 || res[1].status==408){
                 fetch('https://api.datausa.io/attrs/cip/')
                     .then((newRes)=>{
                             res[1]=newRes;
