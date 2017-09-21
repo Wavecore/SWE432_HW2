@@ -95,9 +95,33 @@ class CIPRecordBook{
     }
 }
 var getData = ()=>{
+
     Promise.all([fetch('https://api.datausa.io/api/?show=cip&sumlevel=all'),fetch('https://api.datausa.io/attrs/cip/')])
         .then((res)=>{
             console.log('Obtaining Fetches');
+            if(res[0].statusCode==404){t
+                throw new Error("ERROR 404 URL Not found: https://api.datausa.io/api/?show=cip&sumlevel=all");
+            }
+            if(res[1].statusCode==404){t
+                throw new Error("ERROR 404 URL Not found: https://api.datausa.io/attrs/cip/");
+            }
+
+
+            while(res[0].statusCode==503 || res[0].statusCode==408){
+                fetch('https://api.datausa.io/api/?show=cip&sumlevel=all')
+                    .then((newRes)=>{
+                            res[0]=newRes;
+                        }
+                    );
+            }
+
+            while(res[1].statusCode==503 || res[1].statusCode==408){
+                fetch('https://api.datausa.io/attrs/cip/')
+                    .then((newRes)=>{
+                            res[1]=newRes;
+                        }
+                    );
+            }
             return Promise.all([res[0].json(),res[1].json()]);
         }).then((json)=>{
             console.log('Obtaining id to name conversions');
@@ -135,7 +159,14 @@ var getData = ()=>{
             console.log('Done');
         });
 };
+
 getData();
+
+setInterval(() => {
+    //console.log("TESTING INTERVAL");
+    getData();
+},20000);
+
 /*fetch('https://api.datausa.io/api/?show=cip&sumlevel=all')
     .then(function(res){
         return res.json();
