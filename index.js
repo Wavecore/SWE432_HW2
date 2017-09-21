@@ -94,16 +94,56 @@ class CIPRecordBook{
         return this.book.get(index)
     }
 }
-fetch('https://api.datausa.io/api/?show=cip&sumlevel=all')
+
+Promise.all([fetch('https://api.datausa.io/api/?show=cip&sumlevel=all'),fetch('https://api.datausa.io/attrs/cip/')])
+    .then((res)=>{
+        console.log('Obtaining Fetches');
+        return Promise.all([res[0].json(),res[1].json()]);
+    }).then((json)=>{
+        console.log('Obtaining id to name conversions');
+        let recordData = json[0];
+        let cipData = json[1];
+        let nameIndex = cipData.headers.indexOf('name');
+        let idIndex = cipData.headers.indexOf('id');
+        let idToName = new Map();
+        for(var i of cipData.data){
+            idToName.set(i[idIndex],i[nameIndex]);
+        }
+        return [recordData,idToName];
+    }).then((data)=>{
+        console.log('Doing work');
+        let recordData = data[0];
+        let idToName = data[1];
+        let cipHeader = recordData.headers;
+        var recBook = new CIPRecordBook(cipHeader);
+        for(var i of recordData['data']){
+            let cipRecordInfo = new Map();
+            for(var j in i){
+                cipRecordInfo.set(cipHeader[j],i[j]);
+                if(cipHeader[j] === 'cip'){
+                    //console.log(i[j]);
+                    cipRecordInfo.set('name',idToName.get(i[j]));
+                }
+            }
+            //console.log(cipRecordInfo);
+            recBook.add(new CIPRecords(cipRecordInfo));
+            //console.log(recordBook);
+        }
+        return recBook
+    }).then((recBook)=>{
+    recordBook = recBook;
+    console.log('Done');
+});
+/*fetch('https://api.datausa.io/api/?show=cip&sumlevel=all')
     .then(function(res){
         return res.json();
-    }).then(function(json){
-    records = json;
+    }).then(function(recordJson){
+    records = recordJson;
     fetch('https://api.datausa.io/attrs/cip/')
         .then(function(res){
             return res.json();
-        }).then(function(json){
-        cipID = json;
+        }).then(function(cipJson){
+        cipID = cipJson;
         let nameIndex = cipID.headers.indexOf('name');
         let idIndex = cipID.headers.indexOf('id');
         //console.log(`nameIndex = ${nameIndex} idIndex = ${idIndex}`);
@@ -135,8 +175,8 @@ fetch('https://api.datausa.io/api/?show=cip&sumlevel=all')
     }).then(function(recBook){
     	recordBook = recBook;
 	});
-
 });
+*/
 //===========Debugging Endpoints============================
 app.get('/test/:inputStuff', function (req, res) {
   res.send(req.params.inputStuff);
