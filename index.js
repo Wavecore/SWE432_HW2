@@ -360,3 +360,54 @@ app.get('/musicteachers/:gender',function(req,res){
 
 });
 //******************************************************
+
+//**************** Scenario 6 **********************
+app.get('/CIP/',function(req,res){
+
+    let sName=[];
+
+    // get the names
+    for(var i of recordBook.book) {
+        // Store names from local copy into a set
+        if(sName.indexOf(i[1].name)==-1) {
+            sName.push(i[1].name);
+        }
+    }
+
+    res.send(sName);
+});
+
+//**************** Scenario 6 **********************
+app.get('/CIP/',function(req,res){
+
+    let aName=[];
+
+    // get the names
+    for(var i of recordBook.book) {
+        // Store names from local copy into an array
+        if(aName.indexOf(i[1].name)==-1) {
+            aName.push(i[1].name);
+        }
+    }
+
+    res.send(aName);
+});
+
+// ************ Scenario 7 *******************
+//Get the years in the data
+app.get('/years/',function(req,res){
+
+    let aYear=[];
+
+    // get the total grad count in given year
+    for(var i of recordBook.book) {
+        if(aYear.indexOf(i[1].year)==-1) {
+            aYear.push(i[1].year);
+        }
+    }
+
+    //console.log('grandCnt: '+grandCnt);
+    res.send(aYear);
+
+});
+//************************************************
