@@ -1,10 +1,11 @@
 var express = require('express');
 var fetch = require('node-fetch');
+var nock = require("nock");
 var bodyParser = require('body-parser');
 var app = express();
 var records;
 var cipID;
-var recordBook
+var recordBook;
 app.set('port', (process.env.PORT || 5000));
 app.use(bodyParser.json());
 
@@ -14,22 +15,7 @@ app.listen(app.get('port'), function() {
 });
 
 app.get('/', function (req, res) {
-    res.send('1)Get the grad rank of given record.\n' +
-        '\tGET:/gradrank/:recordID\n' +
-        ' \n' +
-        '2) Get the data for how many grads in given year\n' +
-        '\tGET:/totalgrad/:year\n' +
-        ' \n' +
-        '3) Get the data for how many males or females work as a music teacher(name: \'Music Teacher Education\')\n' +
-        '\tGET:/musicteachers/:female\n' +
-        '\tGET:/musicteachers/:male\n' +
-        '\n' +
-        '4) Get the ratio of male to female grads in each ethnicity (can specify the year and CIP for more specific ratios)\n' +
-        '\tGET: /ratio/:ethn?/:year?/:cip?\n' +
-        '\n' +
-        '5) Retrieve, add, update, and or delete a CIP record\n' +
-        '\tPOST: /record\n' +
-        '\tGET, DELETE,PUT: /record/:recordID\n');
+    res.send('Hello World');
 });
 
 class CIPRecords{
@@ -99,14 +85,12 @@ var getData = ()=>{
     Promise.all([fetch('https://api.datausa.io/api/?show=cip&sumlevel=all'),fetch('https://api.datausa.io/attrs/cip/')])
         .then((res)=>{
             console.log('Obtaining Fetches');
-            if(res[0].status==404){t
+            if(res[0].status==404){
                 throw new Error("ERROR 404 URL Not found: https://api.datausa.io/api/?show=cip&sumlevel=all");
             }
-            if(res[1].status==404){t
+            if(res[1].status==404){
                 throw new Error("ERROR 404 URL Not found: https://api.datausa.io/attrs/cip/");
             }
-
-
             while(res[0].status==503 || res[0].status==408){
                 fetch('https://api.datausa.io/api/?show=cip&sumlevel=all')
                     .then((newRes)=>{
@@ -114,8 +98,8 @@ var getData = ()=>{
                         }
                     );
             }
-
             while(res[1].status==503 || res[1].status==408){
+
                 fetch('https://api.datausa.io/attrs/cip/')
                     .then((newRes)=>{
                             res[1]=newRes;
@@ -157,16 +141,15 @@ var getData = ()=>{
         }).then((recBook)=>{
             recordBook = recBook;
             console.log('Done');
+        }).catch(function(err){
+            console.log(err);
         });
 };
 
 getData();
-
 setInterval(() => {
-    //console.log("TESTING INTERVAL");
     getData();
-},20000);
-
+    },30000);
 /*fetch('https://api.datausa.io/api/?show=cip&sumlevel=all')
     .then(function(res){
         return res.json();
